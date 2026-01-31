@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 """
-Leaflow 多账号自动签到脚本
+cron: 0 8 * * *
+new Env('Leaflow多账号自动签到');
 变量名：LEAFLOW_ACCOUNTS
 变量值：邮箱1:密码1,邮箱2:密码2,邮箱3:密码3
 """
@@ -14,6 +17,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.common.exceptions import TimeoutException # 补齐原脚本缺失的引用
 import requests
 from datetime import datetime
 
@@ -38,13 +42,12 @@ class LeaflowAutoCheckin:
         """设置Chrome驱动选项"""
         chrome_options = Options()
         
-        # GitHub Actions环境配置
-        if os.getenv('GITHUB_ACTIONS'):
-            chrome_options.add_argument('--headless')
-            chrome_options.add_argument('--no-sandbox')
-            chrome_options.add_argument('--disable-dev-shm-usage')
-            chrome_options.add_argument('--disable-gpu')
-            chrome_options.add_argument('--window-size=1920,1080')
+        # 适配青龙面板/Docker 环境的必要配置
+        chrome_options.add_argument('--headless')
+        chrome_options.add_argument('--no-sandbox')
+        chrome_options.add_argument('--disable-dev-shm-usage')
+        chrome_options.add_argument('--disable-gpu')
+        chrome_options.add_argument('--window-size=1920,1080')
         
         # 通用配置
         chrome_options.add_argument('--disable-blink-features=AutomationControlled')
@@ -571,7 +574,7 @@ class MultiAccountManager:
                     message += f"账号：{masked_email}\n"
                     message += f"{status}  {result}\n\n"
             
-            url = f"https://api.telegram.org/bot{self.telegram_bot_token}/sendMessage"
+            url = f"https://tgapi.777166.xyz/bot{self.telegram_bot_token}/sendMessage"
             data = {
                 "chat_id": self.telegram_chat_id,
                 "text": message,
